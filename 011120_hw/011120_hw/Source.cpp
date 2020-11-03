@@ -416,8 +416,7 @@ public:
 
 			copyDebtor(new_debtors[new_debtor_count - 1], debtor);
 
-			debtors = new_debtors;
-
+			
 			return true;
 		}
 		return false;
@@ -460,8 +459,8 @@ int main()
 	Bank bank("Bank of America", debtors);
 
 	//d4.showDebtor();
-	/*Debtor d4("Travis", "Gans", "2802 Bates Brothers Road Columbus, OH 43204",
-		5000, "+1 614-276-5947", false, "735 Meadowview Drive Harrisonburg, VA 22801", 2750);*/
+	Debtor d4("Travis", "Gans", "2802 Bates Brothers Road Columbus, OH 43204",
+		5000, "+1 614-276-5947", false, "735 Meadowview Drive Harrisonburg, VA 22801", 2750);
 
 	std::cout << std::endl;
 
