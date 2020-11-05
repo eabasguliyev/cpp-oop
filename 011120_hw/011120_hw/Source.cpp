@@ -260,14 +260,14 @@ class Bank
 {
 	char* bank_name;
 	Debtor* debtors;
-
+	size_t debtor_count;
 private:
 	void setDebtors(Debtor* debtors)
 	{
 		assert(debtors && "NULL ERROR!");
 
 		size_t debtor_count = Debtor::getCurrentID();
-
+		this->debtor_count = debtor_count;
 		this->debtors = new Debtor[debtor_count];
 
 		if (debtors)
@@ -280,7 +280,7 @@ private:
 	}
 public:
 
-	Bank() :bank_name{ nullptr }, debtors{ nullptr }{}
+	Bank() :bank_name{ nullptr }, debtors{ nullptr }, debtor_count{ 0 }{}
 
 	Bank(const char* bank_name, Debtor* debtors)
 	{
@@ -306,7 +306,6 @@ public:
 	void showBankInfo()
 	{
 		const char* bank_name = getBankName();
-		size_t debtor_count = Debtor::getCurrentID();
 		std::cout << "Bank name: ";
 		if (bank_name)
 			std::cout << bank_name << std::endl;
@@ -315,8 +314,8 @@ public:
 
 		std::cout << "Debtor count: ";
 
-		if (debtor_count)
-			std::cout << debtor_count << std::endl;
+		if (this->debtor_count)
+			std::cout << this->debtor_count << std::endl;
 		else
 			std::cout << 0 << std::endl;
 
@@ -325,8 +324,8 @@ public:
 	{
 		if (debtors)
 		{
-			size_t debtor_count = Debtor::getCurrentID();
-			for (size_t i = 0; i < debtor_count; i++)
+			
+			for (size_t i = 0, length = this->debtor_count; i < length; i++)
 			{
 				std::cout << "-----------------------------------------" << std::endl;
 				debtors[i].showDebtor();
@@ -399,7 +398,7 @@ public:
 	
 	bool AddDebtor(Debtor & debtor)
 	{
-		size_t new_debtor_count = Debtor::getCurrentID();
+		size_t new_debtor_count = this->debtor_count + 1;
 
 		Debtor* new_debtors = new Debtor[new_debtor_count];
 
@@ -416,7 +415,9 @@ public:
 
 			copyDebtor(new_debtors[new_debtor_count - 1], debtor);
 
-			
+			this->debtor_count++;
+
+			this->debtors = new_debtors;
 			return true;
 		}
 		return false;
@@ -458,14 +459,12 @@ int main()
 
 	Bank bank("Bank of America", debtors);
 
-	//d4.showDebtor();
 	Debtor d4("Travis", "Gans", "2802 Bates Brothers Road Columbus, OH 43204",
 		5000, "+1 614-276-5947", false, "735 Meadowview Drive Harrisonburg, VA 22801", 2750);
-
 	std::cout << std::endl;
 
 	bank.showBankInfo();
-
+	bank.showDebtors();
 
 	std::cout << std::endl;
 
