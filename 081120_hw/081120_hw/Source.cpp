@@ -131,6 +131,13 @@ public:
 		return *temp;
 	}
 
+	explicit operator bool()
+	{
+		if (this->numerator < this->denominator)
+			return true;
+		return false;
+	}
+
 	void setNumerator(double numerator)
 	{
 		this->numerator = numerator;
@@ -843,7 +850,7 @@ std::istream& operator >> (std::istream& in, ComputerStore& store)
 void main()
 {
 	//exercise 1
-
+	
 	/*Fraction f1(28, 2);
 	Fraction f2(4, 18);
 
@@ -868,7 +875,9 @@ void main()
 	//exercise 2
 	/*ComputerStore store2("My Store", "Baku");
 
+	Fraction f6(24, 25);
 
+	std::cout << std::boolalpha << (bool)f6 << std::endl;
 	std::cout << store2 << std::endl;
 
 	for (size_t i = 0, length = 2; i < length; i++)
