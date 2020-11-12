@@ -389,8 +389,8 @@ public:
 		char* temp = new char[new_length + 1]{};
 
 	
-			strcpy_s(temp, new_length + 1, this->getText());
-			strcpy_s(temp + this->getLength(), new_length + 1, text);
+			strcpy_s(temp, this->getLength() + 1, this->getText());
+			strcpy_s(temp + this->getLength(), strlen(text) + 1, text);
 
 			//delete[] this->text;
 
@@ -410,12 +410,12 @@ public:
 int main()
 {
 
-	MyString s("I am a developer");
+	MyString s("elgun");
 
 	std::cout << "Text: " << s.getText() << std::endl;
 	std::cout << "Length: " << s.getLength() << std::endl;
 	
-	s.append(", and I am 20 years old.");
+	s.append("resul");
 
 	//std::cout << "Text: " << s.getText() << std::endl;
 	//std::cout << "Length: " << s.getLength() << std::endl;
