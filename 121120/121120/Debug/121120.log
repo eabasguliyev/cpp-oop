@@ -1,4 +1,0 @@
-﻿  Source.cpp
-C:\Users\elgun\repos\battleship\cplusplus_oop\121120\121120\Source.cpp(552,30): warning C4244: 'return': conversion from 'double' to 'short', possible loss of data
-C:\Users\elgun\repos\battleship\cplusplus_oop\121120\121120\Source.cpp(556,1): warning C4326: return type of 'main' should be 'int' instead of 'void'
-  121120.vcxproj -> C:\Users\elgun\repos\battleship\cplusplus_oop\121120\Debug\121120.exe
