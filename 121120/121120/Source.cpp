@@ -170,16 +170,44 @@ public:
 		return *this;
 	}
 
-	Student(Student&& student)
+	Student(Student&& student) noexcept
 	{
+		std::cout << "Student move constructor works!" << std::endl;
 		setID(student.getID());
-		setName(student.getName());
+		/*setName(student.getName());
+		setSurname(student.getSurname());*/
+		/*delete[] student.name;
+		student.name = nullptr;
+		delete[] student.surname;
+		student.surname = nullptr;*/
+		this->name = student.name;
+		student.name = nullptr;
+
+		this->surname = student.surname;
+		student.surname = nullptr;
+
+	}
+
+	Student& operator=(Student&& student)
+	{
+		std::cout << "Student move assignment works!" << std::endl;
+		delete[] this->name;
+		delete[] this->surname;
+		setID(student.getID());
+		/*setName(student.getName());
 		setSurname(student.getSurname());
 
 		delete[] student.name;
 		student.name = nullptr;
 		delete[] student.surname;
+		student.surname = nullptr;*/
+
+		this->name = student.name;
+		student.name = nullptr;
+		this->surname = student.surname;
 		student.surname = nullptr;
+
+		return *this;
 	}
 	void setID(size_t id)
 	{
@@ -221,6 +249,7 @@ public:
 	friend std::istream& operator >>(std::istream& in, Student& student);
 	~Student()
 	{
+		std::cout << "Student deleted!" << std::endl;
 		delete[] name;
 		delete[] surname;
 	}
@@ -330,13 +359,14 @@ public:
 
 	Course(Course&& course)
 	{
-		setName(course.getName());
+		std::cout << "Course move constructor works!" << std::endl;
+		/*setName(course.getName());
 		setAddress(course.getAddress());
 		setDiscount(course.getDiscount());
 		setSpeciality(course.getSpeciality());
 		setPricePerMonth(course.getPricePerMonth());
 		setStudentCount(course.getStudentCount());
-		setStudents(course.getStudents());
+		moveStudents(course.getStudents());
 		delete[] course.name;
 		course.name = nullptr;
 		delete[] course.address;
@@ -347,12 +377,26 @@ public:
 		course.pricePerMonth = 0;
 		course.student_count = 0;
 		delete[] course.students;
-		course.students = nullptr;
+		course.students = nullptr;*/
+
+		this->name = course.name;
+		course.name = nullptr;
+		this->address = course.address;
+		course.address = nullptr;
+		setDiscount(course.getDiscount());
+		course.setDiscount(0);
+		this->speciality = course.speciality;
+		course.speciality = nullptr;
+		setPricePerMonth(course.getPricePerMonth());
+		course.setPricePerMonth(0);
+		setStudentCount(course.getStudentCount());
+		course.setStudentCount(0);
+		moveStudents(course.students);
 	}
 
 	void setStudentCount(size_t student_count)
 	{
-		assert(student_count > 0 && "Student count must be greater than zero");
+		assert(student_count >= 0 && "Student count must be greater than zero");
 		this->student_count = student_count;
 	}
 
@@ -375,9 +419,19 @@ public:
 		}
 	}
 
-	void moveStudents(Student&& students)
+	void moveStudents(Student *&students)
 	{
+		assert(students && "Null error");
+		this->students = new Student[this->student_count];
 
+		if (this->students)
+		{
+			for (size_t i = 0; i < this->student_count; i++)
+			{
+				this->students[i] = std::move(students[i]);
+			}
+			students = nullptr;
+		}
 	}
 	Student* getStudents() const
 	{
@@ -412,7 +466,7 @@ public:
 
 	void setDiscount(double discount)
 	{
-		assert(discount > 0 && "Discount must be greater than zero");
+		assert(discount >= 0 && "Discount must be greater than zero");
 		this->discount = discount;
 	}
 
@@ -436,7 +490,7 @@ public:
 
 	void setPricePerMonth(double pricePerMonth)
 	{
-		assert(pricePerMonth > 0 && "Price must be greater than zero");
+		assert(pricePerMonth >= 0 && "Price must be greater than zero");
 		this->pricePerMonth = pricePerMonth;
 	}
 
@@ -447,9 +501,10 @@ public:
 
 	friend short getPriceWithDiscount(const Course & course);
 
-	friend std::ostream operator<<(std::ostream& out, const Course& course);
+	friend std::ostream &operator<<(std::ostream& out, const Course& course);
 	~Course()
 	{
+		std::cout << "Course deleted!" << std::endl;
 		delete[] name;
 		delete[] address;
 		delete[] speciality;
@@ -457,16 +512,8 @@ public:
 };
 
 
-std::ostream operator<<(std::ostream& out, const Course& course)
+std::ostream &operator<<(std::ostream& out, const Course& course)
 {
-	/*
-	char* name;
-	char* address;
-	double discount;
-	char* speciality;
-	double pricePerMonth;
-	size_t student_count;
-	Student* students;*/
 
 	out << "-----------------------------" << std::endl;
 	out << "Name: ";
@@ -482,7 +529,23 @@ std::ostream operator<<(std::ostream& out, const Course& course)
 	else
 		out << "none" << std::endl;
 
-	
+	out << "Discount: " << course.getDiscount() << std::endl;
+
+	out << "Speciality: ";
+	if (course.getSpeciality())
+		out << course.getSpeciality() << std::endl;
+	else
+		out << "none" << std::endl;
+
+	out << "Price per month: " << course.getPricePerMonth() << std::endl;
+
+	out << "Students: " << std::endl << std::endl;
+
+	for (size_t i = 0; i < course.student_count; i++)
+	{
+		out << course.students[i] << std::endl << std::endl;
+	}
+	return out;
 }
 short getPriceWithDiscount(const Course& course)
 {
@@ -491,13 +554,35 @@ short getPriceWithDiscount(const Course& course)
 
 void main()
 {
+	Student s1("Elgun", "Abasquliyev");
+	Student s2("Sanan", "Mammadov");
+	Student s3("Arifali", "Baghirli");
+	Student s4("Amin", "Aliyev");
+	Student s5("Ayxan", "Axundov");
+
+	Student* students = new Student[5]{ s1, s2, s3, s4, s5 };
+
+	Course c1("StepIT", "Baku", 10, "Programming", 350, students, 5);
+
 	
-	Move m(20);
+	//std::cout << s1 << std::endl;
+	std::cout << c1 << std::endl;
+
+	Course c2(std::move(c1));
+
+	std::cout << "Press enter to show c2";
+	std::cin.get();
+	std::cout << c2 << std::endl;
+
+	std::cout << "Press enter to show c1";
+	std::cin.get();
+	std::cout << c1 << std::endl;
+	/*Move m(20);
 
 	Move m2(std::move(m));
 
 	m.showData();
-	m2.showData();
+	m2.showData();*/
 	/*Square s(10);
 	Rectangle r;
 
