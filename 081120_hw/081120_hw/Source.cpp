@@ -7,14 +7,14 @@ class Fraction
 	double denominator;
 
 private:
-	double GCD(double num1, double num2)
+	int GCD(int num1, int num2)
 	{
 		if (num1 == 0)
 			return num2;
 
-		double remainder;
+		int remainder;
 		int result;
-		double second;
+		int second;
 		if (num1 < num2)
 		{
 			result = num2 / num1;
@@ -30,6 +30,30 @@ private:
 
 		return GCD(remainder, second);
 	}
+
+	long long getTens(size_t size)
+	{
+		long long tens = 1;
+		while (size)
+		{
+			tens *= 10;
+			size--;
+		}
+		return tens;
+	}
+	int getFloatingLength(double num)
+	{
+		size_t counter = 0;
+		size_t precision = 2;
+		while (num - int(num) > 0.01 && counter < precision)
+		{
+			num *= 10;
+			counter++;
+		}
+
+		return counter;
+	}
+
 public:
 	Fraction() :numerator(0), denominator(0) {}
 
@@ -131,13 +155,6 @@ public:
 		return *temp;
 	}
 
-	explicit operator bool()
-	{
-		if (this->numerator < this->denominator)
-			return true;
-		return false;
-	}
-
 	void setNumerator(double numerator)
 	{
 		this->numerator = numerator;
@@ -156,7 +173,10 @@ public:
 
 	void reduce()
 	{
-		double divisor = GCD(this->numerator, this->denominator);
+		int numerator = this->numerator * getTens(getFloatingLength(this->numerator));
+		int denominator = this->denominator * getTens(getFloatingLength(this->denominator));
+
+		int divisor = GCD(numerator, denominator);
 
 		if (divisor != 1)
 		{
@@ -850,7 +870,11 @@ std::istream& operator >> (std::istream& in, ComputerStore& store)
 void main()
 {
 	//exercise 1
-	
+	Fraction f1(456.24, 234.32);
+
+	std::cout << f1 << std::endl;
+
+	//std::cout << f1 << std::endl;
 	/*Fraction f1(28, 2);
 	Fraction f2(4, 18);
 
@@ -875,9 +899,7 @@ void main()
 	//exercise 2
 	/*ComputerStore store2("My Store", "Baku");
 
-	Fraction f6(24, 25);
 
-	std::cout << std::boolalpha << (bool)f6 << std::endl;
 	std::cout << store2 << std::endl;
 
 	for (size_t i = 0, length = 2; i < length; i++)
