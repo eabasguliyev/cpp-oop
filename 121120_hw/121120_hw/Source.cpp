@@ -3,8 +3,9 @@
 #include <Windows.h>
 #include <conio.h>
 #include <iomanip>
+#include <strsafe.h>
 
-#define FILE_NAME "lucky_burger.bin"
+#define FILE_NAME "green_garden.bin"
 #define GREEN 2
 #define RED 4
 #define YELLOW 6
@@ -74,7 +75,7 @@ public:
 
 	Menu(const Menu& menu)
 	{
-		std::cout << "Copy constructor" << std::endl;
+		//std::cout << "Copy constructor" << std::endl;
 		setID(menu.getID());
 		setName(menu.getName());
 		setMenuRating(menu.getMenuRating());
@@ -85,7 +86,7 @@ public:
 
 	Menu& operator = (const Menu& menu)
 	{
-		std::cout << "Copy assignment" << std::endl;
+		//std::cout << "Copy assignment" << std::endl;
 		if (this != &menu)
 		{
 			delete[] this->name;
@@ -103,7 +104,7 @@ public:
 
 	Menu(Menu&& menu) noexcept
 	{
-		std::cout << "Move constructor" << std::endl;
+		//std::cout << "Move constructor" << std::endl;
 		this->id = menu.id;
 		menu.id = 0;
 		this->name = menu.name;
@@ -120,7 +121,7 @@ public:
 
 	Menu& operator = (Menu&& menu) noexcept
 	{
-		std::cout << "Move assignment" << std::endl;
+		//std::cout << "Move assignment" << std::endl;
 		if (this != &menu)
 		{
 			delete[] this->name;
@@ -321,7 +322,7 @@ public:
 
 	~Menu()
 	{
-		std::cout << "Menu destroyed!" << std::endl;
+		//std::cout << "Menu destroyed!" << std::endl;
 		delete[] name;
 		delete[] category;
 	}
@@ -402,7 +403,7 @@ public:
 
 	Restaurant(const Restaurant& res)
 	{
-		std::cout << "Copy constructor" << std::endl;
+		//std::cout << "Copy constructor" << std::endl;
 		setName(res.getName());
 		setAddress(res.getAddress());
 		setPhoneNumber(res.getPhoneNumber());
@@ -414,7 +415,7 @@ public:
 
 	Restaurant& operator = (const Restaurant& res)
 	{
-		std::cout << "Copy assigment!" << std::endl;
+		//std::cout << "Copy assigment!" << std::endl;
 
 		if (this != &res)
 		{
@@ -443,7 +444,7 @@ public:
 	
 	Restaurant(Restaurant&& res) noexcept
 	{
-		std::cout << "Move constructor" << std::endl;
+		//std::cout << "Move constructor" << std::endl;
 		this->name = res.name;
 		res.name = nullptr;
 		this->address = res.address;
@@ -462,7 +463,7 @@ public:
 
 	Restaurant& operator=(Restaurant&& res) noexcept
 	{
-		std::cout << "Move assigment!" << std::endl;
+		//std::cout << "Move assigment!" << std::endl;
 
 		if (this != &res)
 		{
@@ -845,9 +846,16 @@ public:
 			{
 				if (id == menu[i]->getID())
 				{
-					if (menu[i]->getMenuRating() <= 9)
+					double menu_rating = menu[i]->getMenuRating();
+					if (menu_rating <= 9)
 					{
 						(*menu[i])++;
+						sortMenu(true);
+						setStatusOfChanges(true);
+					}
+					if (menu_rating < 10)
+					{
+						menu[i]->setMenuRating(10);
 						sortMenu(true);
 						setStatusOfChanges(true);
 					}
@@ -865,9 +873,16 @@ public:
 			{
 				if (id == menu[i]->getID())
 				{
-					if (menu[i]->getMenuRating() >= 1)
+					double menu_rating = menu[i]->getMenuRating();
+					if (menu_rating >= 1)
 					{
 						(*menu[i])--;
+						sortMenu(true);
+						setStatusOfChanges(true);
+					}
+					else if(menu_rating > 0)
+					{
+						menu[i]->setMenuRating(0);
 						sortMenu(true);
 						setStatusOfChanges(true);
 					}
@@ -947,6 +962,7 @@ public:
 			fwrite(&rating, sizeof(double), 1, file);
 			fwrite(&average_cost, sizeof(double), 1, file);
 
+			fwrite(&Menu::current_id, sizeof(size_t), 1, file);
 
 			size_t menu_count = getMaxMenuCount();
 			fwrite(&menu_count, sizeof(size_t), 1, file);
@@ -1014,6 +1030,8 @@ public:
 			fread(&rating, sizeof(double), 1, file);
 			fread(&average_cost, sizeof(double), 1, file);
 
+			fread(&Menu::current_id, sizeof(size_t), 1, file);
+
 			fread(&max_menu_count, sizeof(size_t), 1, file);
 
 			if (max_menu_count)
@@ -1062,7 +1080,7 @@ public:
 	}
 	~Restaurant()
 	{
-		std::cout << "Restaurant destroyed!" << std::endl;
+		//std::cout << "Restaurant destroyed!" << std::endl;
 		delete[] name;
 		delete[] address;
 		delete[] phone_number;
@@ -1075,7 +1093,7 @@ public:
 	}
 };
 
-size_t Restaurant::no = 2077;
+size_t Restaurant::no = 145;
 std::ostream& operator <<(std::ostream& out, const Restaurant& res)
 {
 	res.print();
@@ -1088,11 +1106,21 @@ std::istream& operator >> (std::istream& in, Restaurant& res)
 	return in;
 }
 
+struct ScreenOptions
+{
+	char** main_menu = nullptr;
+	size_t mm_size = 0;
+	char** rating_options = nullptr;
+	size_t ro_size = 0;
+	char** menu_options = nullptr;
+	size_t mo_size = 0;
+};
 
-short MainMenu();
-short RatingOptions();
-short MenuOptions();
+short MainMenu(ScreenOptions &);
+short RatingOptions(ScreenOptions&);
+short MenuOptions(ScreenOptions&);
 void StartScreen();
+void destroyData(char** options, size_t size);
 
 void Pause()
 {
@@ -1102,25 +1130,58 @@ void Pause()
 	std::cin.get();
 }
 
+void ConsoleScreenSettings()
+{
+	HANDLE hConsoleIN = GetStdHandle(STD_INPUT_HANDLE);
+
+	HANDLE hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
+
+	TCHAR consoleNewTitle[MAX_PATH];
+
+	StringCchPrintf(consoleNewTitle, MAX_PATH, TEXT("Restaurant: Green Garden 145"));
+
+	SetConsoleTitle(consoleNewTitle);
+
+	HWND consoleWindow = GetConsoleWindow();
+	MoveWindow(consoleWindow, 500, 58, 895, 518, TRUE);
+	SetWindowLong(consoleWindow, GWL_STYLE, GetWindowLong(consoleWindow, GWL_STYLE) & ~WS_MAXIMIZEBOX & ~WS_SIZEBOX);
+
+
+	CONSOLE_CURSOR_INFO cursor_info = {};
+
+	cursor_info.bVisible = false;
+	cursor_info.dwSize = 1;
+	SetConsoleCursorInfo(hConsoleOUT, &cursor_info);
+}
+
 void main()
 {
+	ConsoleScreenSettings();
 	StartScreen();
+
+	ScreenOptions so;
 
 	Restaurant res;
 	
 	if (!res.readFromFile())
 	{
-		Menu* m1 = new Menu("Mushroom Swiss Burger", 7.3, "Burgers", 11.95, 15);
-		Menu* m2 = new Menu("Classic Burger", 8.2, "Burgers", 7.95, 15);
-		Menu* m3 = new Menu("Philly Cheese Steak", 5.5, "Wraps&Sandwiches", 6.95, 15);
-		Menu* m4 = new Menu("Banana Cream Pie", 6.9, "Desserts", 4.95, 15);
-		Menu* m5 = new Menu("Coca Cola", 9.6, "Drinks", 2, 15);
+		Menu* m1 = new Menu("Merci", 7.3, "Shorbalar", 4.9, 15);
+		Menu* m2 = new Menu("Toyuq shorbasi", 8.2, "Shorbalar", 4.9, 15);
+		Menu* m3 = new Menu("Ag pendir", 6.5, "Qelyanaltilar", 4, 15);
+		Menu* m4 = new Menu("Zeytun", 5.4, "Qelyanaltilar", 4.95, 15);
+		Menu* m5 = new Menu("Bilinchik (et)", 8.6, "Qelyanaltilar", 2, 15);
+		Menu* m6 = new Menu("Burger mal eti ile", 7.6, "Burgerler", 11.9, 15);
+		Menu* m7 = new Menu("Burger toyuq eti ile", 8.6, "Burgerler", 8, 15);
+		Menu* m8 = new Menu("Cola, Fanta, Sprite", 9.3, "Ichkiler", 4, 15);
+		Menu* m9 = new Menu("Sirab Qazli/Qazsiz", 8.2, "Ichkiler", 4, 15);
+		Menu* m10 = new Menu("Kufte bozbash", 3.2, "Milli Metbex", 6.9, 15);
 
-		size_t max_menu_count = 4;
-		Menu** menu = new Menu * [max_menu_count] {m1, m2, m3, m4};
-		res.setName("Lucky Burger");
-		res.setAddress("Hungary, Gardony");
-		res.setPhoneNumber("+3617009582");
+		size_t max_menu_count = 10;
+		Menu** menu = new Menu * [max_menu_count] {m1, m2, m3, m4, m5, m6, m7,
+																m8, m9, m10};
+		res.setName("Green Garden 145");
+		res.setAddress("F.Bayramov St. 1130/33 Baku Azerbaijan");
+		res.setPhoneNumber("+994 51 400 01 45");
 		res.setMaxMenuCount(max_menu_count);
 		res.setMenu(menu);
 
@@ -1133,7 +1194,7 @@ void main()
 	while (true)
 	{
 		system("CLS");
-		short choice = MainMenu();
+		short choice = MainMenu(so);
 
 		switch (choice)
 		{
@@ -1149,7 +1210,7 @@ void main()
 			while (true)
 			{
 				system("CLS");
-				short choice2 = RatingOptions();
+				short choice2 = RatingOptions(so);
 
 				if (choice2 == BACK)
 				{
@@ -1189,7 +1250,7 @@ void main()
 		{
 			while (true)
 			{
-				short choice2 = MenuOptions();
+				short choice2 = MenuOptions(so);
 
 				system("CLS");
 
@@ -1248,6 +1309,10 @@ void main()
 		case EXIT:
 		{
 			system("CLS");
+
+			destroyData(so.main_menu, so.mm_size);
+			destroyData(so.rating_options, so.ro_size);
+			destroyData(so.menu_options, so.mo_size);
 			return;
 		}
 			break;
@@ -1260,9 +1325,8 @@ void main()
 
 void PrintMenu(char** options, int size, int selected);
 
-short MenuInputWithKeyboard(char** options, short size)
+short MenuInputWithKeyboard(char** options, short size, short & selected)
 {
-	short selected = 1;
 	while (true)
 	{
 		system("CLS");
@@ -1308,58 +1372,57 @@ void destroyData(char** options, size_t size)
 	}
 }
 
-short MainMenu()
+short MainMenu(ScreenOptions & so)
 {
 	system("CLS");
+	static short selected = 1;
+	if (so.mm_size == 0)
+	{
+		so.mm_size = 5;
+		so.main_menu = new char* [so.mm_size];
+		so.main_menu[0] = _strdup("Print restaurant");
+		so.main_menu[1] = _strdup("Rating options");
+		so.main_menu[2] = _strdup("Menu options");
+		so.main_menu[3] = _strdup("Save changes");
+		so.main_menu[4] = _strdup("Exit");
+	}
 
-	int size = 5;
-	char** options = new char* [size];
-	options[0] = _strdup("Print restaurant");
-	options[1] = _strdup("Rating options");
-	options[2] = _strdup("Menu options");
-	options[3] = _strdup("Save changes");
-	options[4] = _strdup("Exit");
-
-	size_t selected = MenuInputWithKeyboard(options, size);
-
-	destroyData(options, size);
-	return selected;
+	return MenuInputWithKeyboard(so.main_menu, so.mm_size, selected);
 }
 
-short MenuOptions()
-{
-
-	system("CLS");
-
-	int size = 4;
-	char** options = new char* [size];
-	options[0] = _strdup("Add Menu");
-	options[1] = _strdup("Update menu");
-	options[2] = _strdup("Delete menu");
-	options[3] = _strdup("Back");
-
-	size_t selected = MenuInputWithKeyboard(options, size);
-
-	destroyData(options, size);
-	return selected;
-}
-
-short RatingOptions()
+short MenuOptions(ScreenOptions & so)
 {
 
 	system("CLS");
+	static short selected = 1;
+	if (so.mo_size == 0)
+	{
+		so.mo_size = 4;
+		so.menu_options = new char* [so.mo_size];
+		so.menu_options[0] = _strdup("Add Menu");
+		so.menu_options[1] = _strdup("Update menu");
+		so.menu_options[2] = _strdup("Delete menu");
+		so.menu_options[3] = _strdup("Back");
+	}
 
-	int size = 3;
-	char** options = new char* [size];
-	options[0] = _strdup("Increase Menu Rating");
-	options[1] = _strdup("Decrease Menu Rating");
-	options[2] = _strdup("Back");
-
-	size_t selected = MenuInputWithKeyboard(options, size);
-
-	destroyData(options, size);
-	return selected;
+	return  MenuInputWithKeyboard(so.menu_options, so.mo_size, selected);
 }
+
+short RatingOptions(ScreenOptions & so)
+{
+	system("CLS");
+	static short selected = 1;
+	if (so.ro_size == 0)
+	{
+		so.ro_size = 3;
+		so.rating_options = new char* [so.ro_size];
+		so.rating_options[0] = _strdup("Increase Menu Rating");
+		so.rating_options[1] = _strdup("Decrease Menu Rating");
+		so.rating_options[2] = _strdup("Back");
+	}
+	return MenuInputWithKeyboard(so.rating_options, so.ro_size, selected);
+}
+
 void PrintMenu(char** options, int size, int selected)
 {
 	HANDLE hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -1397,7 +1460,7 @@ void StartScreen()
 {
 	HANDLE hConsoleOUT = GetStdHandle(STD_OUTPUT_HANDLE);
 	SetConsoleCursorPosition(hConsoleOUT, { 43, 12 });
-	TypingEffect("Lucky Burger");
+	TypingEffect("Green Garden 145");
 	std::cout << std::endl;
 	SetConsoleCursorPosition(hConsoleOUT, { 43, 13 });
 	TypingEffect("Control panel loading...");
