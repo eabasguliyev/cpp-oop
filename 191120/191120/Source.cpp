@@ -114,133 +114,133 @@ public:
 	}
 };
 size_t Product::current_id = 0;
-template <class T>
-class Stack
-{
-	T* data;
-	size_t size;
-public:
-	Stack() : data(nullptr), size(0) {}
-
-	Stack(const Stack& other)
-	{
-		this->size = other.getSize();
-		/*if (data != nullptr)
-		{
-			delete[] data;
-			data = nullptr;
-		}*/
-
-		data = new T[size] {};
-
-		for (size_t i = 0; i < size; i++)
-		{
-			data[i] = other.data[i];
-		}
-	}
-
-	Stack& operator=(const Stack& other)
-	{
-		this->size = other.getSize();
-		if (data != nullptr)
-		{
-			delete[] data;
-			data = nullptr;
-		}
-
-		data = new int[size] {};
-
-		for (size_t i = 0; i < size; i++)
-		{
-			data[i] = other.data[i];
-		}
-		return *this;
-	}
-
-	void push(T value)
-	{
-		auto data = new T[size + 1];
-
-		if (data != nullptr)
-		{
-			if (size)
-			{
-				for (size_t i = 0; i < size; i++)
-				{
-					data[i] = this->data[i];
-				}
-
-				delete[] this->data;
-				this->data = nullptr;
-			}
-
-			data[size] = value;
-
-			this->data = data;
-			data = nullptr;
-
-			this->size++;
-
-		}
-	}
-
-	T pop()
-	{
-		assert(size && "There is no data");
-		T value = data[size - 1];
-
-		size_t new_size = size - 1;
-
-		auto data = new T[new_size];
-
-		if (data != nullptr)
-		{
-			for (size_t i = 0; i < new_size; i++)
-			{
-				data[i] = this->data[i];
-			}
-
-			delete[] this->data;
-
-			this->data = data;
-			data = nullptr;
-
-			this->size--;
-		}
-
-		return value;
-	}
-
-	T peek()
-	{
-		assert(size && "There is no data");
-		return data[size - 1];
-	}
-
-	size_t getSize() const
-	{
-		return this->size;
-	}
-
-	void clear()
-	{
-		if (data != nullptr)
-		{
-			delete[] data;
-			data = nullptr;
-			size = 0;
-		}
-	}
-
-	~Stack()
-	{
-		if (data)
-		{
-			delete[] data;
-			data = nullptr;
-		}
-	}
-};
+//template <class T>
+//class Stack
+//{
+//	T* data;
+//	size_t size;
+//public:
+//	Stack() : data(nullptr), size(0) {}
+//
+//	Stack(const Stack& other)
+//	{
+//		this->size = other.getSize();
+//		/*if (data != nullptr)
+//		{
+//			delete[] data;
+//			data = nullptr;
+//		}*/
+//
+//		data = new T[size] {};
+//
+//		for (size_t i = 0; i < size; i++)
+//		{
+//			data[i] = other.data[i];
+//		}
+//	}
+//
+//	Stack& operator=(const Stack& other)
+//	{
+//		this->size = other.getSize();
+//		if (data != nullptr)
+//		{
+//			delete[] data;
+//			data = nullptr;
+//		}
+//
+//		data = new int[size] {};
+//
+//		for (size_t i = 0; i < size; i++)
+//		{
+//			data[i] = other.data[i];
+//		}
+//		return *this;
+//	}
+//
+//	void push(T value)
+//	{
+//		auto data = new T[size + 1];
+//
+//		if (data != nullptr)
+//		{
+//			if (size)
+//			{
+//				for (size_t i = 0; i < size; i++)
+//				{
+//					data[i] = this->data[i];
+//				}
+//
+//				delete[] this->data;
+//				this->data = nullptr;
+//			}
+//
+//			data[size] = value;
+//
+//			this->data = data;
+//			data = nullptr;
+//
+//			this->size++;
+//
+//		}
+//	}
+//
+//	T pop()
+//	{
+//		assert(size && "There is no data");
+//		T value = data[size - 1];
+//
+//		size_t new_size = size - 1;
+//
+//		auto data = new T[new_size];
+//		
+//		if (data != nullptr)
+//		{
+//			for (size_t i = 0; i < new_size; i++)
+//			{
+//				data[i] = this->data[i];
+//			}
+//
+//			delete[] this->data;
+//
+//			this->data = data;
+//			data = nullptr;
+//
+//			this->size--;
+//		}
+//
+//		return value;
+//	}
+//
+//	T peek()
+//	{
+//		assert(size && "There is no data");
+//		return data[size - 1];
+//	}
+//
+//	size_t getSize() const
+//	{
+//		return this->size;
+//	}
+//
+//	void clear()
+//	{
+//		if (data != nullptr)
+//		{
+//			delete[] data;
+//			data = nullptr;
+//			size = 0;
+//		}
+//	}
+//
+//	~Stack()
+//	{
+//		if (data)
+//		{
+//			delete[] data;
+//			data = nullptr;
+//		}
+//	}
+//};
 
 //	queque - novbe : FIFO - first in first out
 
@@ -268,6 +268,7 @@ public:
 	{
 		return data[front];
 	}
+
 	void enqueue(T value)
 	{
 		assert(!isFull() && "Queue is full");
@@ -310,6 +311,298 @@ public:
 			delete[] data;
 			data = nullptr;
 		}
+	}
+};
+
+
+//linked list
+template <class T>
+class LinkedStackOfStrings;
+
+template <class T>
+class Node
+{
+	T item;
+	Node* next;
+
+public:
+	Node() :next(nullptr) {}
+	friend class LinkedStackOfStrings<T>;
+
+	~Node()
+	{
+		std::cout << "Deleted " << item << std::endl;
+	}
+};
+
+template <class T>
+class LinkedStackOfStrings
+{
+	Node<T>* first;
+
+public:
+	LinkedStackOfStrings() :first(nullptr) {}
+
+	void push(T item)
+	{
+		Node<T>* node = new Node<T>;
+
+		node->item = item;
+		if (first != nullptr)
+		{
+			node->next = first;
+		}
+
+		first = node;
+	}
+
+	T pop()
+	{
+		if (!isEmpty())
+		{
+			T item = first->item;
+
+			Node<T>* temp = first->next;
+
+			delete first;
+
+			first = temp;
+
+			return item;
+		}
+
+		return 0;
+	}
+
+	bool isEmpty()
+	{
+		return first == nullptr;
+	}
+
+	void showLinkedStack()
+	{
+		if (isEmpty())
+			return;
+
+		Node<T>* temp = first;
+		while (1)
+		{
+			std::cout << temp->item << ' ';
+
+			if (temp->next == nullptr)
+			{
+				break;
+			}
+
+			temp = temp->next;
+		}
+		std::cout << std::endl;
+	}
+
+	void clearLinkedList(Node<T>*& node)
+	{
+		if (node->next == nullptr)
+		{
+			delete node;
+			return;
+		}
+		else
+		{
+			clearLinkedList(node->next);
+		}
+		delete node;
+		node = nullptr;
+	}
+
+	~LinkedStackOfStrings()
+	{
+		if (!isEmpty())
+			clearLinkedList(first);
+	}
+};
+
+
+//standart stack class
+/*
+template <class T>
+class Stack
+{
+	T* data;
+	size_t size;
+
+public:
+	Stack() : data(nullptr), size(0) {}
+
+	void push(T value)
+	{
+		size_t N = this->size + 1;
+		T* tmp = new T[N];
+
+		if (tmp != nullptr)
+		{
+			if (N - 1)
+			{
+				for (size_t i = 0; i < N - 1; i++)
+				{
+					tmp[i] = this->data[i];
+				}
+
+				delete[] this->data;
+			}
+
+			tmp[N - 1] = value;
+
+			this->size++;
+
+			this->data = tmp;
+		}
+	}
+
+	T pop()
+	{
+		if (!isEmpty())
+		{
+			size_t N = this->size - 1;
+			T* tmp = new T[N];
+
+			if (tmp != nullptr)
+			{
+				T deleted = data[N];
+				for (size_t i = 0; i < N; i++)
+				{
+					tmp[i] = data[i];
+				}
+
+				delete[] this->data;
+
+				this->data = tmp;
+				this->size--;
+				return deleted;
+			}
+		}
+		return 0;
+	}
+
+	bool isEmpty() { return size == 0; }
+
+	T& peek() const
+	{
+		return data[size - 1];
+	}
+
+	T getSize() const
+	{
+		return this->size;
+	}
+	inline void clear()
+	{
+		if (this->data != nullptr)
+		{
+			delete[] this->data;
+			this->data = nullptr;
+			this->size = 0;
+		}
+	}
+
+	~Stack()
+	{
+		clear();
+	}
+};*/
+
+template <class T>
+class Stack
+{
+	T* data;
+	size_t capacity;
+	size_t size;
+
+public:
+	Stack() : data(nullptr), size(0), capacity(1) {}
+
+	void push(T value)
+	{
+		if (this->data == nullptr)
+		{
+			this->data = new T[this->capacity];
+		}
+		else if (this->capacity == this->size)
+		{
+			this->capacity *= 2;
+			T* tmp = new T[this->capacity];
+
+			if (tmp != nullptr)
+			{
+				for (size_t i = 0, length = getSize(); i < length; i++)
+				{
+					tmp[i] = this->data[i];
+				}
+
+				delete[] this->data;
+
+				this->data = tmp;
+			}
+		}
+
+		this->data[this->size] = value;
+		this->size++;
+
+	}
+
+	T pop()
+	{
+		if (!isEmpty())
+		{
+			size_t N = this->size - 1;
+			T* tmp = new T[N];
+
+			if (tmp != nullptr)
+			{
+				T deleted = data[N];
+				for (size_t i = 0; i < N; i++)
+				{
+					tmp[i] = data[i];
+				}
+
+				delete[] this->data;
+
+				this->data = tmp;
+				this->size--;
+				return deleted;
+			}
+		}
+		return 0;
+	}
+
+	bool isEmpty() { return size == 0; }
+
+	T& peek() const
+	{
+		return data[size - 1];
+	}
+
+	size_t getSize() const
+	{
+		return this->size;
+	}
+
+	size_t getCapacity() const
+	{
+		return this->capacity;
+	}
+	inline void clear()
+	{
+		if (this->data != nullptr)
+		{
+			delete[] this->data;
+			this->data = nullptr;
+			this->size = 0;
+		}
+	}
+
+	~Stack()
+	{
+		clear();
 	}
 };
 /*class Queue
@@ -381,7 +674,68 @@ public:
 };*/
 void main()
 {
-	std::string p1_name = "milk";
+
+	//-------------------------------------------------------------------------
+	// stack 
+
+	Stack<int> mystack;
+
+	for (size_t i = 0; i < 10; i++)
+	{
+		mystack.push(i + 1);
+		std::cout << "Size: " << mystack.getSize() << std::endl;
+		std::cout << "Capacity: " << mystack.getCapacity() << std::endl;
+	}
+
+	std::cout << std::endl;
+	while (!mystack.isEmpty())
+	{
+		std::cout << "Deleted -> " << mystack.pop() << std::endl;
+	}
+	// Linked list stack;
+
+	/*LinkedStackOfStrings<std::string> ls;
+
+	ls.push("old");
+
+	ls.push("years");
+
+	ls.push("20");
+
+	ls.push("is");
+
+	ls.push("abasquliyev");
+
+	ls.push("elgun");
+
+	ls.showLinkedStack();
+
+
+	for (size_t i = 0; !ls.isEmpty(); i++)
+	{
+		std::cout << ls.pop() << std::endl;
+	}
+
+	ls.showLinkedStack();*/
+
+	// Array list stack;
+
+	/*Stack<int>* mystack = new Stack<int>;
+
+	mystack->push(15);
+	mystack->push(16);
+
+
+	std::cout << mystack->pop() << std::endl;
+	std::cout << mystack->pop() << std::endl;
+
+	std::cout << mystack->peek();
+
+	mystack->clear();
+
+	delete mystack;*/
+
+	/*std::string p1_name = "milk";
 	std::string p2_name = "cola";;
 	Product p1(p1_name, 10, 4);
 	Product p2(p2_name, 8, 4);
@@ -401,7 +755,7 @@ void main()
 	}
 
 	std::cout << "is empty: " << std::boolalpha << myqueue.isEmpty() << std::endl;
-	std::cout << "Is full: " << std::boolalpha << myqueue.isFull() << std::endl;
+	std::cout << "Is full: " << std::boolalpha << myqueue.isFull() << std::endl;*/
 
 
 	/*Queue<int> myqueue(10);
