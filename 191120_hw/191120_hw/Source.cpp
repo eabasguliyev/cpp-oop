@@ -186,24 +186,9 @@ public:
 	void enqueue(Worker& worker)
 	{
 		assert(!isFull() && "Capacity is full!");
-		size_t new_size = getSize() + 1;
-		auto tmp = new Worker[new_size];
-
-		if (tmp != nullptr)
-		{
-			if (new_size - 1)
-			{
-				for (size_t i = 0, length = new_size - 1; i < length; i++)
-				{
-					tmp[i] = workers[i];
-				}
-				delete[] workers;
-			}
-
-			tmp[new_size - 1] = worker;
-			this->count = new_size;
-			this->workers = tmp;
-		}
+		this->workers[rear] = worker;
+		rear++;
+		count++;
 	}
 
 	Worker dequeue()
@@ -222,11 +207,15 @@ public:
 			{
 				tmp[i] = workers[i + 1];
 			}
+			
+
 			delete[] workers;
 
 			this->count = new_size;
 
 			this->workers = tmp;
+
+			rear--;
 		}
 
 		return deleted;
@@ -266,13 +255,22 @@ public:
 		{
 			Worker rear = worker_queue->dequeue();
 			std::cout << "Worker " << rear.getName() << "'s papers was printed." << std::endl;
-			Sleep(2000);
+			Sleep(500);
 		}
 	}
 
 	void setWorkerQueue(const WorkerQueue* worker_queue)
 	{
 		this->worker_queue = new WorkerQueue(*worker_queue);
+	}
+
+	~Printer()
+	{
+		if (this->worker_queue != nullptr)
+		{
+			delete this->worker_queue;
+			this->worker_queue = nullptr;
+		}
 	}
 };
 
@@ -304,7 +302,7 @@ void main()
 
 	printer.setWorkerQueue(wq);
 
-
 	printer.start();
-	
+
+	delete wq;
 }
