@@ -181,12 +181,8 @@ public:
 		{
 			tmp = node->next->next;
 			delete node->next;
+			node->next = tmp;
 		}
-		else
-			tmp = nullptr;
-		
-
-		node->next = tmp;
 	}
 
 	void setHead(Node<T>* head)
@@ -263,7 +259,7 @@ void main()
 
 	std::cout << "-------------------------------------" << std::endl;
 
-	ll.deleteAfter(ll.getNode(0));
+	ll.deleteAfter(ll.getNode(1));
 
 	ll.print();
 	/*ll.deleteByIndex(2);
