@@ -291,6 +291,7 @@ struct Node
 	Node<T>* next;
 	Wagon<T>* current;
 };
+
 template <class T>
 class Train
 {
@@ -301,13 +302,14 @@ class Train
 public:
 	Train() {}
 
-	Train(const std::string& name, const Node<T>* head, const Node<T>* tail)
+	Train(const std::string& name, Node<T>* head, Node<T>* tail)
 	{
 		setName(name);
 		setHead(head);
 		setTail(tail);
 	}
 
+	
 	void setName(const std::string& name)
 	{
 		assert(!name.empty() && "Name cant be blank");
@@ -316,16 +318,216 @@ public:
 
 	std::string getName() const { return this->name; }
 
-	void setHead(const Node<T>* head)
+	void setHead(Node<T>* head)
 	{
-		assert(head == NULL && "Head cant be null");
+		assert(head != NULL && "Head cant be null");
 		this->head = head;
 	}
 
-	void setTail(const Node<T>* tail)
+	void setTail(Node<T>* tail)
 	{
-		assert(tail == NULL && "Tail cant be null");
+		assert(tail != NULL && "Tail cant be null");
 		this->tail = tail;
+	}
+
+	void forwardTraverse()
+	{
+		Node<T>* tmp = head;
+
+		while (tmp != NULL)
+		{
+			std::cout << "++++++++++++++++++++++++++++++++++++++\n";
+			tmp->current->wagonInfo();
+			tmp->current->showProducts();
+			tmp = tmp->next;
+		}
+	}
+
+	void backwardTraverse()
+	{
+		Node<Product>* tmp = tail;
+
+		while (tmp != NULL)
+		{
+			std::cout << "++++++++++++++++++++++++++++++++++++++\n";
+			tmp->current->wagonInfo();
+			tmp->current->showProducts();
+			tmp = tmp->prev;
+		}
+	}
+
+	void addFront(const Wagon<T> & data)
+	{
+		Node<T>* new_node = new Node<T>;
+		new_node->current = new Wagon<T>(data);
+		new_node->prev = NULL;
+		new_node->next = this->head;
+
+		if (this->head == NULL)
+		{
+			this->tail = new_node;
+		}
+		else
+		{
+			this->head->prev = new_node;
+		}
+
+
+		this->head = new_node;
+	}
+
+	void addEnd(const Wagon<T>& data)
+	{
+		Node<T>* new_node = new Node<T>;
+		new_node->current = new Wagon<T>(data);
+
+		new_node->next = NULL;
+		new_node->prev = this->tail;
+		
+		if (this->tail == NULL)
+		{
+			this->head = new_node;
+		}
+		else
+		{
+			this->tail->next = new_node;
+		}
+
+		this->tail = new_node;
+	}
+
+	void addAfter(Node<T>* node, const Wagon<T>& data)
+	{
+		if (node == NULL)
+			return;
+		
+		Node<T>* new_node = new Node<T>;
+		new_node->current = new Wagon<T>(data);
+		new_node->prev = node;
+		
+
+		if (node->next == NULL)
+		{
+			this->tail = new_node;
+			this->tail->next = NULL;
+		}
+		else
+		{
+			new_node->next = node->next;
+			new_node->next->prev = new_node;
+		}
+		node->next = new_node;
+	}
+
+	Node<T>* getNode(size_t index) const
+	{
+		if (this->head == NULL)
+			return NULL;
+
+		Node<T>* tmp = this->head;
+		size_t counter = 0;
+
+
+		while (counter < index && tmp != NULL)
+		{
+			tmp = tmp->next;
+			counter++;
+		}
+
+		if (counter != index)
+			return NULL;
+
+		return tmp;
+	}
+
+	//getWagonByNo("vaqon nomresi")//vaqon qaytarsin
+	//showProductsByNo("vaqon nomresi")//butun productlar gorunsun
+	//	deleteWagonByNo("vaqon nomresi")
+	//	updateSpeedByNo("vaqon nomresi", 250)
+	//	updateCountryByNo("vaqon nomresi", "Azerbaijan")
+
+	void showProductsByNo(const std::string& no)
+	{
+		if (this->head == NULL)
+			return;
+
+		Node<T>* node = getWagonByNo(no);
+
+		if (node)
+			node->current->showProducts();
+		else
+			std::cout << "There is no wagon associated this no -> " << no << std::endl;
+	}
+
+	Node<T>* getWagonByNo(const std::string &no)
+	{
+		Node<T>* tmp = this->head;
+
+		while (tmp != NULL)
+		{
+			if (tmp->current->getNo() == no)
+			{
+				return tmp;
+			}
+			tmp = tmp->next;
+		}
+
+		return NULL;
+	}
+
+	void deleteWagonByNo(const std::string &no)
+	{
+		if (this->head == NULL)
+			return;
+
+		Node<T>* node = getWagonByNo(no);
+
+		if (node == NULL)
+			return;
+		else if (node->prev == NULL)
+		{
+			this->head = node->next;
+			this->head->prev = NULL;
+		}
+		else if (node->next == NULL)
+		{
+			this->tail = node->prev;
+			this->tail->next = NULL;
+		}
+		else
+		{
+			node->prev->next = node->next;
+			node->next->prev = node->prev;
+		}
+
+		delete node;
+		node = NULL;
+	}
+
+	void updateSpeedByNo(const std::string& no, double speed)
+	{
+		if (this->head == NULL)
+			return;
+
+		Node<T>* node = getWagonByNo(no);
+
+		if (node == NULL)
+			return;
+
+		node->current->speed = speed;
+	}
+
+	void updateCountryByNo(const std::string& no, const std::string& country)
+	{
+		if (this->head == NULL)
+			return;
+
+		Node<T>* node = getWagonByNo(no);
+
+		if (node == NULL)
+			return;
+
+		node->current->country = country;
 	}
 };
 
@@ -335,23 +537,44 @@ void main()
 	Product p1("iphone", "Apple", 1000, 5);
 	Product p2("A7", "Samsung", 800, 10);
 	Product p3("Xiaomi MI", "Xiaomi", 600, 15);
-	p1.productInfo();
-	p2.productInfo();
-	p3.productInfo();
+	//p1.productInfo();
+	//p2.productInfo();
+	//p3.productInfo();
 
 
 	Wagon<Product> w1("100", "Azerbaijan", 100);
 
-	w1.wagonInfo();
+	//w1.wagonInfo();
 
 	w1.addProduct(p1);
-	w1.getProduct().productInfo();
+	//w1.getProduct().productInfo();
 
 	w1.addProduct(p2);
-	w1.getProduct().productInfo();
+	//w1.getProduct().productInfo();
 
 	w1.addProduct(p3);
-	w1.getProduct().productInfo();
+	//w1.getProduct().productInfo();
+
+	Product p4("Airpods", "Apple", 400, 5);
+	Product p5("Galaxy buds", "Samsung", 240, 6);
+	Product p6("Mi band 4", "Xiaomi", 50, 8);
+	//p4.productInfo();
+	//p5.productInfo();
+	//p6.productInfo();
+
+
+	Wagon<Product> w2("101", "Azerbaijan", 100);
+
+	//w2.wagonInfo();
+
+	w2.addProduct(p4);
+	//w2.getProduct().productInfo();
+
+	w2.addProduct(p5);
+	//w2.getProduct().productInfo();
+
+	w2.addProduct(p6);
+	//w2.getProduct().productInfo();
 
 	/*std::cout << "Deleted!" << std::endl;
 	while (!w1.isEmpty())
@@ -360,8 +583,108 @@ void main()
 	}*/
 
 
-	std::cout << std::endl;
+	/*std::cout << std::endl;
 	std::cout << "Products listed: " << std::endl;
 	w1.showProducts();
-	w1.wagonInfo();
+	w1.wagonInfo();*/
+
+
+	Train<Product> tr;
+
+	Node<Product>* first = new Node<Product>;
+	first->current = new Wagon<Product>(w1);
+	first->prev = NULL;
+	first->next = NULL;
+
+	Node<Product>* second = new Node<Product>;
+	second->current = new Wagon<Product>(w2);
+	second->prev = first;
+	second->prev->next = second;
+	second->next = NULL;
+
+
+	tr.setHead(first);
+	tr.setTail(second);
+
+	Product p7("iphone 12 pro", "Apple", 1000, 5);
+	Product p8("Galaxy SM20", "Samsung", 500, 6);
+	Product p9("Redmi", "Xiaomi", 300, 8);
+	//p4.productInfo();
+	//p5.productInfo();/
+	//p6.productInfo();
+
+
+	Wagon<Product> w3("102", "Azerbaijan", 100);
+
+	//w2.wagonInfo();
+
+	w3.addProduct(p7);
+	//w2.getProduct().productInfo();
+
+	w3.addProduct(p8);
+	//w2.getProduct().productInfo();
+
+	w3.addProduct(p9);
+	//w2.getProduct().productInfo();
+
+	tr.addFront(w3);
+
+	Product p10("Iphone SE", "Apple", 600, 5);
+	Product p11("Galaxy Tab S6 Lite", "Samsung", 650, 6);
+	Product p12("Mi band 5", "Xiaomi", 65, 8);
+	//p4.productInfo();
+	//p5.productInfo();
+	//p6.productInfo();
+
+
+	Wagon<Product> w4("103", "Azerbaijan", 100);
+
+	//w2.wagonInfo();
+
+	w4.addProduct(p10);
+	//w2.getProduct().productInfo();
+
+	w4.addProduct(p11);
+	//w2.getProduct().productInfo();
+
+	w4.addProduct(p12);
+	//w2.getProduct().productInfo();
+
+
+	tr.addEnd(w4);
+
+
+	Product p14("Iphone SE", "Apple", 600, 5);
+	Product p15("Galaxy Tab S6 Lite", "Samsung", 650, 6);
+	Product p16("Mi band 5", "Xiaomi", 65, 8);
+	//p4.productInfo();
+	//p5.productInfo();
+	//p6.productInfo();
+
+
+	Wagon<Product> w5("104", "Azerbaijan", 100);
+
+	//w2.wagonInfo();
+
+	w5.addProduct(p14);
+	//w2.getProduct().productInfo();
+
+	w5.addProduct(p15);
+	//w2.getProduct().productInfo();
+
+	w5.addProduct(p16);
+	//w2.getProduct().productInfo();
+
+	tr.addAfter(tr.getNode(3), w5);
+
+	/*Node<Product>* tmp = tr.getNode(0);
+	tr.deleteNode(tmp);*/
+	//tr.forwardTraverse();
+	//tr.backwardTraverse();
+
+	//tr.showProductsByNo("102");
+
+	//tr.deleteWagonByNo("104");
+
+	tr.forwardTraverse();
 }
