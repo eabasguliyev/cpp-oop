@@ -1,6 +1,8 @@
 #include <iostream>
 #include <assert.h>
 
+class Soldier;
+void showSoldiers(Soldier* soldiers, size_t size);
 
 class Person
 {
@@ -67,14 +69,14 @@ public:
 
 class Fighter
 {
-	std::string fight_power;
+	float fight_power;
 	std::string weapon;
 
 public:
 
-	Fighter() :fight_power(""), weapon("") {}
+	Fighter() :fight_power(0.0), weapon("") {}
 
-	Fighter(const std::string& fight_power, const std::string& weapon)
+	Fighter(const float& fight_power, const std::string& weapon)
 	{
 		setFightPower(fight_power);
 		setWeapon(weapon);
@@ -93,13 +95,13 @@ public:
 		return *this;
 	}
 
-	void setFightPower(const std::string& fight_power)
+	void setFightPower(const float& fight_power)
 	{
-		assert(!fight_power.empty() && "Fight power can't be blank!");
+		assert(fight_power > 0 && "Fight power must be greater than zero!");
 		this->fight_power = fight_power;
 	}
 
-	std::string getPower() const { return this->fight_power; }
+	float getPower() const { return this->fight_power; }
 
 	void setWeapon(const std::string& weapon)
 	{
@@ -109,9 +111,10 @@ public:
 
 	std::string getWeapon() const { return this->weapon; }
 
-	bool attack()
+	void attack()
 	{
-		return true;
+		std::cout << "Fighter attacked with " << getWeapon() << std::endl;
+		std::cout << "Damaged given -> " << getPower() << std::endl;
 	}
 
 	void show() const
@@ -188,7 +191,7 @@ public:
 	{
 		Person::show();
 		std::cout << "Army work practise: " << getArmyWorkPractise() << std::endl;
-		std::cout << "Victoru count: " << getVictoryCount() << std::endl;
+		std::cout << "Victory count: " << getVictoryCount() << std::endl;
 		std::cout << "Army no: " << getArmyNo() << std::endl;
 	}
 };
@@ -202,7 +205,7 @@ public:
 	Soldier() : id(0) {}
 
 	Soldier(const std::string& name, const std::string& surname, const short& age,
-		const std::string& fight_power, const std::string& weapon, const int& id):
+		const float& fight_power, const std::string& weapon, const int& id):
 		Person(name, surname, age), Fighter(fight_power, weapon)
 	{
 		setID(id);
@@ -245,12 +248,7 @@ public:
 		Person::show();
 		Fighter::show();
 	}
-
-	friend std::ostream& operator<<(std::ostream& out, const Soldier& soldier)
-	{
-		soldier.show();
-		return out;
-	}
+	
 };
 
 template <class T>
@@ -260,7 +258,32 @@ class Stack
 	size_t size;
 public:
 	Stack() : data(nullptr), size(0) {}
-	void push(T value)
+	Stack(const Stack& stack)
+	{
+		this->size = stack.getSize();
+
+		T* tmp = stack.getData();
+
+		this->data = new T[this->size];
+		for (size_t i = 0; i < this->size; i++)
+		{
+			data[i] = tmp[i];
+		}
+	}
+	Stack& operator=(const Stack& stack)
+	{
+		this->size = stack.getSize();
+
+		T* tmp = stack.getData();
+
+		this->data = new T[this->size];
+		for (size_t i = 0; i < this->size; i++)
+		{
+			data[i] = tmp[i];
+		}
+		return *this;
+	}
+	void push(const T& value)
 	{
 		size_t N = this->size + 1;
 		T* tmp = new T[N];
@@ -305,7 +328,7 @@ public:
 	{
 		return data[size - 1];
 	}
-	T getSize() const
+	size_t getSize() const
 	{
 		return this->size;
 	}
@@ -317,6 +340,10 @@ public:
 			this->data = nullptr;
 			this->size = 0;
 		}
+	}
+
+	T* getData() const {
+		return this->data;
 	}
 	~Stack()
 	{
@@ -333,7 +360,7 @@ public:
 	Tank() : tank_name("") {
 	}
 
-	Tank(const std::string& fight_power, const std::string& weapon, const std::string& tank_name):
+	Tank(const float& fight_power, const std::string& weapon, const std::string& tank_name):
 		Fighter(fight_power, weapon)
 	{
 		setTankName(tank_name);
@@ -344,14 +371,27 @@ public:
 		setFightPower(tank.getPower());
 		setWeapon(tank.getWeapon());
 		setTankName(tank.getTankName());
+		setStack(tank.getStack());
 	}
 
+	
 	Tank& operator=(const Tank& tank)
 	{
 		setFightPower(tank.getPower());
 		setWeapon(tank.getWeapon());
 		setTankName(tank.getTankName());
+		setStack(tank.getStack());
 		return *this;
+	}
+
+	void setStack(const Stack<Soldier>& soldiers)
+	{
+		this->soldiers = soldiers;
+	}
+
+	const Stack<Soldier>& getStack() const
+	{
+		return soldiers;
 	}
 	void setTankName(const std::string& tank_name)
 	{
@@ -373,15 +413,24 @@ public:
 		return soldiers.pop();
 	}
 
+	Soldier* getSoldiers()
+	{
+		return soldiers.getData();
+	}
+
+	size_t getSoldierCount()
+	{
+		return soldiers.getSize();
+	}
+
 	void show()
 	{
+		std::cout << "++++++++++++++++++++++++++++++++++++++++++" << std::endl;
 		std::cout << "Tank name: " << getTankName() << std::endl;
 		Fighter::show();
 
-		while (!soldiers.isEmpty())
-		{
-			std::cout << soldiers.pop() << std::endl;
-		}
+
+		showSoldiers(this->getSoldiers(), this->getSoldierCount());
 	}
 };
 
@@ -393,7 +442,7 @@ class MilitaryAircraft : public Fighter
 public:
 	MilitaryAircraft() : aircraft_name("") {}
 
-	MilitaryAircraft(const std::string& fight_power, const std::string& weapon, const std::string& aircraft_name) :
+	MilitaryAircraft(const float& fight_power, const std::string& weapon, const std::string& aircraft_name) :
 		Fighter(fight_power, weapon)
 	{
 		setAircraftName(aircraft_name);
@@ -404,6 +453,7 @@ public:
 		setFightPower(aircraft.getPower());
 		setWeapon(aircraft.getWeapon());
 		setAircraftName(aircraft.getAircraftName());
+		setStack(aircraft.getStack());
 	}
 
 	MilitaryAircraft& operator=(const MilitaryAircraft& aircraft)
@@ -411,7 +461,18 @@ public:
 		setFightPower(aircraft.getPower());
 		setWeapon(aircraft.getWeapon());
 		setAircraftName(aircraft.getAircraftName());
+		setStack(aircraft.getStack());
 		return *this;
+	}
+
+	void setStack(const Stack<Soldier>& soldiers)
+	{
+		this->soldiers = soldiers;
+	}
+
+	const Stack<Soldier>& getStack() const
+	{
+		return soldiers;
 	}
 	void setAircraftName(const std::string& aircraft_name)
 	{
@@ -433,15 +494,23 @@ public:
 		return soldiers.pop();;
 	}
 
+	Soldier* getSoldiers()
+	{
+		return soldiers.getData();
+	}
+
+	size_t getSoldierCount()
+	{
+		return soldiers.getSize();
+	}
+
 	void show()
 	{
-		std::cout << "Tank name: " << getAircraftName() << std::endl;
+		std::cout << "++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+		std::cout << "Aircraft name: " << getAircraftName() << std::endl;
 		Fighter::show();
 
-		while (!soldiers.isEmpty())
-		{
-			std::cout << soldiers.pop() << std::endl;
-		}
+		showSoldiers(this->getSoldiers(), this->getSoldierCount());
 	}
 };
 
@@ -453,7 +522,7 @@ class MilitaryShip: public Fighter
 public:
 	MilitaryShip() : ship_name(""){}
 
-	MilitaryShip(const std::string& fight_power, const std::string& weapon, const std::string& ship_name) :
+	MilitaryShip(const float& fight_power, const std::string& weapon, const std::string& ship_name) :
 		Fighter(fight_power, weapon)
 	{
 		setShipName(ship_name);
@@ -464,6 +533,7 @@ public:
 		setFightPower(ship.getPower());
 		setWeapon(ship.getWeapon());
 		setShipName(ship.getShipName());
+		setStack(ship.getStack());
 	}
 
 	MilitaryShip& operator=(const MilitaryShip& ship)
@@ -471,7 +541,18 @@ public:
 		setFightPower(ship.getPower());
 		setWeapon(ship.getWeapon());
 		setShipName(ship.getShipName());
+		setStack(ship.getStack());
 		return *this;
+	}
+
+	void setStack(const Stack<Soldier>& soldiers)
+	{
+		this->soldiers = soldiers;
+	}
+
+	const Stack<Soldier>& getStack() const
+	{
+		return soldiers;
 	}
 
 	void setShipName(const std::string& ship_name)
@@ -494,18 +575,25 @@ public:
 		return soldiers.pop();
 	}
 
+	Soldier* getSoldiers()
+	{
+		return soldiers.getData();
+	}
+
+	size_t getSoldierCount()
+	{
+		return soldiers.getSize();
+	}
+
 	void show()
 	{
-		std::cout << "Tank name: " << getShipName() << std::endl;
+		std::cout << "++++++++++++++++++++++++++++++++++++++++++" << std::endl;
+		std::cout << "Ship name: " << getShipName() << std::endl;
 		Fighter::show();
 
-		while (!soldiers.isEmpty())
-		{
-			std::cout << soldiers.pop() << std::endl;
-		}
+		showSoldiers(this->getSoldiers(), this->getSoldierCount());
 	}
 };
-
 
 class Army
 {
@@ -515,20 +603,182 @@ class Army
 	Stack<MilitaryAircraft> aircrafts;
 	Stack<MilitaryShip> ships;
 
-public:
+private:
+	template <typename T>
+	void showVehicleSoldiers(T* vehicles, size_t size)
+	{
+		for (size_t i = 0; i < size; i++)
+		{
+			vehicles[i].show();
+		}
+	}
 
+	float calculateSoldiersPower(Soldier * soldiers, size_t size) {
+		float sum = 0;
+		for (size_t i = 0; i < size; i++)
+		{
+			sum += soldiers[i].getPower();
+		}
+
+		return sum;
+	}
+	template <typename T>
+	float calculateVehiclesPower(T* vehicles, size_t size)
+	{
+		float sum = 0;
+
+		for (size_t i = 0; i < size; i++)
+		{
+			sum += (vehicles[i].getPower() + calculateSoldiersPower(vehicles[i].getSoldiers(), vehicles[i].getSoldierCount()));
+		}
+
+		return sum;
+	}
+public:
 	Army() {}
+
+	Army(const Commander& commander)
+	{
+		setCommander(commander);
+	}
+
+	float calculateArmyPower()
+	{
+		float sum = calculateSoldiersPower(soldiers.getData(), soldiers.getSize());
+		
+		sum += calculateVehiclesPower(tanks.getData(), tanks.getSize());
+		sum += calculateVehiclesPower(ships.getData(), ships.getSize());
+		sum += calculateVehiclesPower(aircrafts.getData(), aircrafts.getSize());
+
+		return sum;
+	}
+	void setCommander(const Commander& commander)
+	{
+		this->commander = commander;
+	}
+
+	void addSoldier(const Soldier& soldier)
+	{
+		this->soldiers.push(soldier);
+	}
+
+	void popSoldier()
+	{
+		this->soldiers.pop();
+	}
+
+	Soldier* getSoldiers()
+	{
+		return this->soldiers.getData();
+	}
+
+	void addTank(const Tank& tank)
+	{
+		this->tanks.push(tank);
+	}
+
+	void popTank()
+	{
+		this->tanks.pop();
+	}
+
+	Tank* getTanks()
+	{
+		return this->tanks.getData();
+	}
+
+	void addAircraft(const MilitaryAircraft& aircraft)
+	{
+		this->aircrafts.push(aircraft);
+	}
+
+	void popAircraft()
+	{
+		this->aircrafts.pop();
+	}
+
+	MilitaryAircraft* getAircraft()
+	{
+		return this->aircrafts.getData();
+	}
+
+	void addShip(const MilitaryShip& ship)
+	{
+		this->ships.push(ship);
+	}
+
+	void popShip()
+	{
+		this->ships.pop();
+	}
+
+	MilitaryShip* getShips()
+	{
+		return this->ships.getData();
+	}
 
 	void show()
 	{
 		commander.show();
+		showSoldiers(soldiers.getData(), soldiers.getSize());
+		showVehicleSoldiers(tanks.getData(), tanks.getSize());
+		showVehicleSoldiers(aircrafts.getData(), aircrafts.getSize());
+		showVehicleSoldiers(ships.getData(), ships.getSize());
 	}
 };
 
+void showSoldiers(Soldier* soldiers, size_t size)
+{
+	for (size_t i = 0; i < size; i++)
+	{
+		soldiers[i].show();
+	}
+}
 
 void main()
 {
-	Soldier soldier;
+	Commander commander("John", "Price", 40, 20, 500, "11");
 
-	std::cout << soldier << std::endl;
+	Army army(commander);
+
+	Soldier soldier1("A1", "B1", 18, 400, "glock", 1);
+	Soldier soldier2("A2", "B2", 19, 500, "glock", 2);
+	Soldier soldier3("A3", "B3", 20, 500, "glock", 3);
+	Soldier soldier4("A4", "B4", 21, 300, "glock", 4);
+	Soldier soldier5("A5", "B5", 22, 200, "glock", 5);
+	Soldier soldier6("A6", "B6", 20, 300, "glock", 6);
+	Soldier soldier7("A7", "B7", 21, 200, "glock", 7);
+	Soldier soldier8("A8", "B8", 19, 100, "glock", 8);
+	Soldier soldier9("A9", "B9", 22, 400, "glock", 9);
+	Soldier soldier10("A10", "B10", 20, 300, "glock", 10);
+
+	Tank tank(1000, "L30", "C1");
+
+	MilitaryAircraft aircraft(1500, "Hydra 70", "D1");
+
+	MilitaryShip ship(1800, "Naval Artillery", "E1");
+
+
+	tank.addSoldier(soldier1);
+	tank.addSoldier(soldier2);
+	aircraft.addSoldier(soldier3);
+	aircraft.addSoldier(soldier4);
+	ship.addSoldier(soldier5);
+	ship.addSoldier(soldier6);
+
+	army.addTank(tank);
+	army.addShip(ship);
+	army.addAircraft(aircraft);
+
+	army.addSoldier(soldier7);
+	army.addSoldier(soldier8);
+	army.addSoldier(soldier9);
+	army.addSoldier(soldier10);
+
+	//army.getTanks()[0].show();
+	army.show();
+
+	std::cout << "Army power: " << army.calculateArmyPower() << std::endl;
+	//army.getTanks()[0].getSoldiers()[0].show();
+
 }
