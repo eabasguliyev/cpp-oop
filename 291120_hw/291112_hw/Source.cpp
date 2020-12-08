@@ -387,7 +387,7 @@ public:
 	{
 		return data[size - 1];
 	}
-	T getSize() const
+	size_t getSize() const
 	{
 		return this->size;
 	}
