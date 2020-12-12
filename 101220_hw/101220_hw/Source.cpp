@@ -228,6 +228,7 @@ public:
 			setUserCount(new_size);
 		}
 	}
+
 	User* getUserByUsername(const std::string& username) {
 		User *user = NULL;
 		for (size_t i = 0; i < this->user_count; i++)
@@ -241,6 +242,21 @@ public:
 
 		return user;
 	}
+	User* getUserByID(const size_t& id) {
+		User* user = NULL;
+		for (size_t i = 0; i < this->user_count; i++)
+		{
+			if (id == users[i]->getUserID())
+			{
+				user = users[i];
+				break;
+			}
+		}
+
+		return user;
+	}
+
+
 	void updateUserByUsername(User& old_user, const User& new_user) {
 		User* user = getUserByUsername(new_user.getUsername());
 
@@ -262,16 +278,12 @@ public:
 		if (UserValidation::checkSurnameLength(new_user.getSurname()))
 			throw InvalidArgumentException("Surname length must be greater than four", "Source.cpp", 263);
 
-		if (true)
-		{
-			old_user = new_user;
-		}
+		old_user = new_user;
 	}
-	void setUserCount(const size_t count)
+	void setUserCount(const size_t& count)
 	{
 		this->user_count = count;
 	}
-
 	void deleteUserByID(const int& id)
 	{
 		if (this->user_count == 0)
@@ -307,8 +319,19 @@ public:
 		}
 		
 	}
-
 	size_t getUserCount() const { return this->user_count; }
+
+	void hashUserData(User * user)
+	{
+		if(user == NULL)
+			throw DatabaseException("Data is incorrect", "Source.cpp", 267);
+
+		//std::cout << std::to_string(generateHash(user->getUsername())) << std::endl;
+		user->setName(std::to_string(generateHash(user->getName())));
+		user->setSurname(std::to_string(generateHash(user->getSurname())));
+		user->setUsername(std::to_string(generateHash(user->getUsername())));
+		user->setRegistrationDate(std::to_string(generateHash(user->getRegistrationDate())));
+	}
 };
 
 class Registration
@@ -384,6 +407,17 @@ public:
 
 		return true;
 	}
+
+	bool encryptAccount(const std::string& username)
+	{
+		User* user = this->_db.getUserByUsername(username);
+		if (user == NULL)
+			throw DatabaseException(std::string("There is no account associated this username: " + username), "Source.cpp", 416);
+
+		this->_db.hashUserData(user);
+
+		return true;
+	}
 };
 
 class SystemControl
@@ -445,7 +479,25 @@ public:
 
 		try
 		{
-			if (reg.deleteAccount("Alexrid"))
+			if (reg.encryptAccount("Alexrid"))
+				std::cout << "Account encrypted!" << std::endl;
+		}
+		catch (const Exception& ex)
+		{
+			ex.echo();
+		}
+		try
+		{
+			// Alexrid username hash -> 1923661840
+			reg._db.getUserByUsername("1923661840")->show();
+		}
+		catch (const Exception& ex)
+		{
+			ex.echo();
+		}
+		try
+		{
+			if (reg.deleteAccount("1923661840"))
 				std::cout << "Account deleted!\n";
 		}
 		catch (const Exception& ex)
@@ -456,7 +508,7 @@ public:
 
 		try
 		{
-			reg._db.getUserByUsername("Alexrid")->show();
+			reg._db.getUserByUsername("1923661840")->show();
 		}
 		catch (const Exception& ex)
 		{
@@ -467,7 +519,7 @@ public:
 
 void main()
 {
-	std::cout << getDate() << std::endl;
+	//std::cout << getDate() << std::endl;
 	SystemControl::Control();
 }
 
