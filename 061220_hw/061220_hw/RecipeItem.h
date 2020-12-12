@@ -1,4 +1,5 @@
-#pragma once
+#ifndef RECIPEITEM_H
+#define RECIPEITEM_H
 #include "ingredients.h"
 
 class RecipeItem
@@ -42,3 +43,5 @@ public:
 		return *this;
 	}
 };
+
+#endif

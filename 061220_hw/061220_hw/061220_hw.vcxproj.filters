@@ -21,12 +21,24 @@
     <ClCompile Include="ingredients.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="meals.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="RecipeItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ingredients.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RecipeItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meals.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CookingDevices.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

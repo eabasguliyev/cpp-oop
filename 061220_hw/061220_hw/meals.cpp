@@ -11,8 +11,6 @@ std::string Meal::getName() const { return this->name; }
 
 void Meal::printRecipe() const
 {
-	std::cout << "Meal name: " << getName() << std::endl;
-
 	std::cout << "Recipe: " << std::endl;
 	for (size_t i = 0, length = getIngredientCount(); i < length; i++)
 	{
@@ -50,7 +48,63 @@ void Meal::addIngredient(Ingredient* ingredient, const size_t& amount)
 		setIngredientCount(new_size);
 	}
 }
+size_t Meal::current_id = NULL;
 void Meal::taste() const
 {
 	std::cout << "I don't know, what is this?" << std::endl;
+}
+
+void Meal::setID(const size_t& id)
+{
+	this->id = id;
+}
+size_t Meal::getID() const { return this->id; }
+
+
+void Pizza::setSize(const std::string& size)
+{
+	this->size = size;
+}
+std::string Pizza::getSize() const { return this->size; }
+void Pizza::printRecipe() const
+{
+	std::cout << "Meal ID: " << getID() << std::endl;
+	std::cout << "Meal name: " << getName() << std::endl;
+	std::cout << "Size: " << getSize() << std::endl;
+	Meal::printRecipe();
+}
+void Pizza::taste() const
+{
+	std::cout << "Mmmm.... delicious!" << std::endl;
+}
+
+void Kabab::setType(const std::string& type)
+{
+	this->type = type;
+}
+
+std::string Kabab::getType() const { return this->type; }
+
+void Kabab::printRecipe() const
+{
+	std::cout << "Meal ID: " << getID() << std::endl;
+	std::cout << "Meal name: " << getName() << std::endl;
+	std::cout << "Type: " << getType() << std::endl;
+	Meal::printRecipe();
+}
+void Kabab::taste() const
+{
+	std::cout << "Mmmm.... delicious!" << std::endl;
+}
+
+void Dolma::printRecipe() const
+{
+	std::cout << "Meal ID: " << getID() << std::endl;
+	std::cout << "Meal name: " << getName() << std::endl;
+	Meal::printRecipe();
+}
+
+void Dolma::taste() const
+{
+	std::cout << "Mmmm.... delicious!" << std::endl;
 }

@@ -21,9 +21,13 @@
   <ItemGroup>
     <ClCompile Include="ingredients.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="meals.cpp" />
+    <ClCompile Include="RecipeItem.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CookingDevices.h" />
     <ClInclude Include="ingredients.h" />
+    <ClInclude Include="meals.h" />
     <ClInclude Include="RecipeItem.h" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
