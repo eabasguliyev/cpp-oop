@@ -18,7 +18,7 @@ namespace SmartPointers
 		}
 
 		UniquePointer(const UniquePointer& other) = delete;
-		UniquePointer operator=(const UniquePointer& other) = delete;
+		UniquePointer& operator=(const UniquePointer& other) = delete;
 
 		UniquePointer(UniquePointer&& other)
 		{
@@ -212,7 +212,6 @@ class Person
 	std::string sendVoteDateTime;
 	Candidate* candidate;
 public:
-	static size_t voter_count;
 	static Candidate** candidates;
 	static size_t candidate_count;
 
@@ -221,7 +220,6 @@ public:
 
 	Person(const std::string& name, const std::string& surname, const size_t& age, const std::string& speciality)
 	{
-		voter_count++;
 		setName(name);
 		setSurname(surname);
 		setAge(age);
@@ -350,19 +348,23 @@ public:
 	~Person()
 	{
 		(*this->candidate->voteCount)--;
-		voter_count--;
+		
+		Candidate* tmp = getCandidate(candidate->candidate);
 
-		if (voter_count == 0)
+		if (tmp != NULL)
 		{
-			deleteCandidateFromList(this->candidate->candidate);
+			if (*tmp->voteCount == 0)
+			{
+				deleteCandidateFromList(tmp->candidate);
+			}
 		}
+		
 		delete this->candidate;
 	}
 };
 
 Candidate** Person::candidates = NULL;
 size_t Person::candidate_count = NULL;
-size_t Person::voter_count = NULL;
 
 void main()
 {
