@@ -349,16 +349,10 @@ public:
 	{
 		(*this->candidate->voteCount)--;
 		
-		Candidate* tmp = getCandidate(candidate->candidate);
-
-		if (tmp != NULL)
+		if ((*this->candidate->voteCount) == 0)
 		{
-			if (*tmp->voteCount == 0)
-			{
-				deleteCandidateFromList(tmp->candidate);
-			}
+			deleteCandidateFromList(this->candidate->candidate);
 		}
-		
 		delete this->candidate;
 	}
 };
