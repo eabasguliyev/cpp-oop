@@ -448,7 +448,7 @@ void main()
 	c3.show();
 	c4.show();
 	c5.show();
-	University university("Hormetsiz UNEC");
+	University university("UNEC");
 	university.addStudent("Terlan", "Kerimli", 20, "Business Administration", 75, c1);
 	university.addStudent("Elshen", "Talibli", 19, "World Economics", 75, c2);
 	university.addStudent("Aysun", "Mikayilova", 20, "Business Administration", 128, c3);
