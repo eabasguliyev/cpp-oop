@@ -1,0 +1,71 @@
+pwd - current path
+ls - contents
+ls -a - gizli fayllari
+clear - temizleyir
+cd - daxil olmaq
+
+global olaraq tanitmaq
+
+git config --global user.name "eabasquliyev" 
+git config --global user.email "elgun.abasquliyev2@gmail.com"
+git config user.name
+git config user.email
+
+proyekti gite qoshmaq uchun
+
+git init
+
+proyektde ne deyisihklik olunuba baxmaq uchun
+
+git status
+
+stage moda kechmek uchun
+
+working area to stageing area
+git add .
+
+ignore fayli yaratmaq uchun
+
+cat >> .gitignore
+.vs
+ctrl+c - chixmaq uchun
+
+stageing are to repos area
+git commit -m "my first commit"
+
+git log - sistemde kimin commit elediyine falan baxmaq olur
+
+her hansi deyishiklikden sonra hemin fayli geri qaytarmaq
+
+git restore 070121/Student.h
+
+git status
+$ git commit -m "first git commit"
+git remote add origin https://github.com/eabasquliyev/gitTest.git
+git push origin main
+cari brancha baxmaq uchun
+git branch
+
+yeni branch yaratmaq uchun
+git branch mikeBranch
+
+branch deyishmek uchun
+
+git checkout mikeBranch
+
+push etmek uchun deyishiklikleri
+
+git push origin mikeBranch
+
+
+deyishiklikleri masterden almaq
+
+git pull origin master
+
+master ile birleshdirmek uchun
+
+git merge mikeBranch
+
+push uchun
+
+git push origin master
